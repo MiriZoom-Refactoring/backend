@@ -2,7 +2,7 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 COPY . .
-RUN gradle :core:war --no-daemon
+RUN gradle :core:war --no-daemon --max-workers=1 -Dorg.gradle.parallel=false "-Dorg.gradle.jvmargs=-Xms128m -Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8"
 
 # Tomcat에 war 배포
 FROM tomcat:9.0-jdk17
