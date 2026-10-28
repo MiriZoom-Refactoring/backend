@@ -9,7 +9,7 @@ RUN test -f batch/src/main/resources/database.docker.properties \
         batch/src/main/resources/database.docker.properties \
         batch/src/main/resources/database.properties
 
-RUN gradle :batch:installDist --no-daemon
+RUN gradle :batch:installDist --no-daemon --max-workers=1 -Dorg.gradle.parallel=false "-Dorg.gradle.jvmargs=-Xms128m -Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8"
 
 
 FROM eclipse-temurin:17-jre-jammy

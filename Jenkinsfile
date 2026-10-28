@@ -43,7 +43,7 @@ pipeline {
                     set -eu
 
                     chmod +x gradlew
-                    ./gradlew test --no-daemon
+                    ./gradlew test --no-daemon --max-workers=1 -Dorg.gradle.parallel=false '-Dorg.gradle.jvmargs=-Xms128m -Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8'
                 '''
             }
         }
@@ -93,8 +93,8 @@ pipeline {
             steps {
                 build(
                     job: 'mirizoom-deploy',
-                    wait: true,
-                    propagate: true,
+                    wait: false,
+                    propagate: false,
                     parameters: [
                         string(name: 'SERVICE', value: 'backend'),
                         string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")
@@ -106,7 +106,7 @@ pipeline {
 
     post {
         success {
-            echo "Backend 이미지 Push 및 배포 완료: ${IMAGE_NAME}:${BUILD_NUMBER}"
+            echo "Backend 이미지 Push 완료 및 배포 요청: ${IMAGE_NAME}:${BUILD_NUMBER}"
         }
 
         failure {

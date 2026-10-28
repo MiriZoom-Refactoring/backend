@@ -47,7 +47,7 @@ pipeline {
                     set -eu
 
                     chmod +x gradlew
-                    ./gradlew :batch:test --no-daemon
+                    ./gradlew :batch:test --no-daemon --max-workers=1 -Dorg.gradle.parallel=false '-Dorg.gradle.jvmargs=-Xms128m -Xmx512m -XX:MaxMetaspaceSize=256m -Dfile.encoding=UTF-8'
                 '''
             }
         }
@@ -106,11 +106,25 @@ pipeline {
                 }
             }
         }
+
+        stage('Request Batch Image Deployment') {
+            steps {
+                build(
+                    job: 'mirizoom-deploy',
+                    wait: false,
+                    propagate: false,
+                    parameters: [
+                        string(name: 'SERVICE', value: 'batch'),
+                        string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}")
+                    ]
+                )
+            }
+        }
     }
 
     post {
         success {
-            echo "Batch 이미지 Push 완료: ${IMAGE_NAME}:${BUILD_NUMBER}"
+            echo "Batch 이미지 Push 완료 및 배포 요청: ${IMAGE_NAME}:${BUILD_NUMBER}"
         }
 
         failure {
